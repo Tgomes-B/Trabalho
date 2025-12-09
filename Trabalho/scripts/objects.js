@@ -9,20 +9,23 @@ export function createSphere() {
         roughness: 0.4
     });
     const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.y = 1.0;
+    sphere.position.y = 1.5;
+    sphere.castShadow = true;
+    sphere.receiveShadow = true;
     return sphere;
 }
 
 // Criar plano de água com shader
-export function createWaterPlane(camera, renderer, vertexShader, fragmentShader, dudvMap) {
+export function createWaterPlane(camera, renderer, vertexShader, fragmentShader, dudvMap, depthTexture) {
     const geometry = new THREE.PlaneGeometry(10, 10);
     const pixelRatio = renderer.getPixelRatio();
     
     const material = new THREE.ShaderMaterial({
         uniforms: {
             ...THREE.UniformsLib.common,
+            isOrthographic: { value: false },
             biasMultiplier: { value: 1 },
-            tDepth: { value: null },
+            tDepth: { value: depthTexture },
             waterColor: { value: new THREE.Color(0x0077be) },
             foamColor: { value: new THREE.Color(0xffffff) },
             threshold: { value: 0.1 },
@@ -47,6 +50,8 @@ export function createWaterPlane(camera, renderer, vertexShader, fragmentShader,
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = -Math.PI / 2;
     plane.position.y = 1.5;
+    plane.receiveShadow = true;
+    plane.castShadow = true;
     return plane;
 }
 
@@ -64,6 +69,8 @@ export function createPlane() {
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = -Math.PI / 2;
     plane.position.y = 1.5;
+    plane.receiveShadow = true;
+    plane.castShadow = true;
     return plane;
 }
 
@@ -81,29 +88,38 @@ export function createBoxPlane() {
     const bottom = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), material);
     bottom.rotation.x = -Math.PI / 2;
     bottom.position.y = -1.5;
+    bottom.receiveShadow = true;
     group.add(bottom);
 
     // Parede frontal
     const front = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), material);
     front.position.set(0, 0.5, 5);
     front.rotation.y = Math.PI;
+    front.castShadow = true;
+    front.receiveShadow = true;
     group.add(front);
 
     // Parede traseira
     const back = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), material);
     back.position.set(0, 0.5, -5);
+    back.castShadow = true;
+    back.receiveShadow = true;
     group.add(back);
 
     // Parede esquerda
     const left = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), material);
     left.position.set(-5, 0.5, 0);
     left.rotation.y = Math.PI / 2;
+    left.castShadow = true;
+    left.receiveShadow = true;
     group.add(left);
 
     // Parede direita
     const right = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), material);
     right.position.set(5, 0.5, 0);
     right.rotation.y = -Math.PI / 2;
+    right.castShadow = true;
+    right.receiveShadow = true;
     group.add(right);
 
     return group;

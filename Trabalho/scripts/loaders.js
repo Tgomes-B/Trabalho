@@ -11,3 +11,18 @@ export function loadSkybox(scene, path) {
     scene.environment = skyboxTexture;
     return skyboxTexture;
 }
+
+// Carregar shaders GLSL
+export async function loadShaders(vertPath, fragPath) {
+    const vert = await (await fetch(vertPath)).text();
+    const frag = await (await fetch(fragPath)).text();
+    return { vert, frag };
+}
+
+// Carregar textura
+export function loadTexture(path) {
+    const texture = textureLoader.load(path);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}

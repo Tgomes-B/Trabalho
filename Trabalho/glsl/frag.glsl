@@ -4,11 +4,12 @@
 
 struct Material
 {
-	vec3 diffuseColor;
-	vec3 specularColor;
-	float shininess;
+    vec3 diffuseColor;
+    vec3 specularColor;
+    float shininess;
 };
 
+//uniform bool isOrthographic;
 uniform vec3 waterColor;
 uniform vec3 foamColor;
 uniform vec2 resolution;
@@ -27,23 +28,23 @@ varying vec3 fragPos;
 
 float getDepth(vec2 screenPosition)
 {
-	return unpackRGBAToDepth(texture2D(tDepth, screenPosition));
+    return texture2D(tDepth, screenPosition).x;
 }
 
 float getViewZ(float depth)
 {
-	if (isOrthographic)
-		return orthographicDepthToViewZ(depth, cameraNear, cameraFar);
-	else
-		return perspectiveDepthToViewZ(depth, cameraNear, cameraFar);
+    if (isOrthographic)
+        return orthographicDepthToViewZ(depth, cameraNear, cameraFar);
+    else
+        return perspectiveDepthToViewZ(depth, cameraNear, cameraFar);
 }
 
 void main()
 {
-	vec2 screenUV = gl_FragCoord.xy / resolution;
-	float fragmentLinearEyeDepth = getViewZ(gl_FragCoord.z);
-	float linearEyeDepth = getViewZ(getDepth(screenUV));
-	float diff = saturate(fragmentLinearEyeDepth - linearEyeDepth);
+    vec2 screenUV = gl_FragCoord.xy / resolution;
+    float fragmentLinearEyeDepth = getViewZ(gl_FragCoord.z);
+    float linearEyeDepth = getViewZ(getDepth(screenUV));
+    float diff = saturate(fragmentLinearEyeDepth - linearEyeDepth);
 
-	gl_FragColor = vec4(mix(foamColor, waterColor, diff), 1.0);
+    gl_FragColor = vec4(mix(foamColor, waterColor, step(threshold, diff)), 0.8);
 }

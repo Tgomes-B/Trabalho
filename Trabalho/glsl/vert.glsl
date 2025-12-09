@@ -33,7 +33,10 @@ void main()
 	#include <shadowmap_vertex>
 	#include <fog_vertex>
 
-	vUV = uv;
-	fragPos = vec3(modelViewMatrix * vec4(position, 1.0));
-	viewDir = normalize(-(viewMatrix * modelMatrix * vec4(position, 1.0)).xyz);
+    vUV = uv;
+    vNormal = normalize(normalMatrix * normal);
+    fragPos = vec3(modelViewMatrix * vec4(position, 1.0));
+    viewDir = normalize(-fragPos);
+    
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
