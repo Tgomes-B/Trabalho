@@ -22,12 +22,15 @@ export function createWaterPlane(camera, renderer, vertexShader, fragmentShader,
     
     const material = new THREE.ShaderMaterial({
         uniforms: {
-            ...THREE.UniformsLib.common,
             isOrthographic: { value: false },
             biasMultiplier: { value: 1 },
             tDepth: { value: depthTexture },
-            waterColor: { value: new THREE.Color(0x0077be) },
-            foamColor: { value: new THREE.Color(0xffffff) },
+            edgePatternScale: { value: 5.0 },
+            falloffDistance: { value: 0.8 },
+            leadingEdgeFalloff: { value: 0.5 },
+            edgeFalloffBias: { value: 1.0 },
+            waterColor: { value: new THREE.Color(0xaaccff) },
+            foamColor: { value: new THREE.Color(0xeeeeee) },
             threshold: { value: 0.1 },
             time: { value: 0 },
             tDudv: { value: dudvMap },
@@ -43,8 +46,7 @@ export function createWaterPlane(camera, renderer, vertexShader, fragmentShader,
             }
         },
         vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-        transparent: true
+        fragmentShader: fragmentShader
     });
 
     const plane = new THREE.Mesh(geometry, material);
@@ -78,21 +80,25 @@ export function createPlane() {
 export function createBoxPlane() {
     const group = new THREE.Group();
     
-    const material = new THREE.MeshStandardMaterial({
+    /*const material = new THREE.MeshStandardMaterial({
         color: "orange",
         roughness: 0.4,
         side: THREE.DoubleSide
+    });*/
+   const boxMaterial = new THREE.MeshLambertMaterial({ 
+    color: 0xea4d10,
+    roughness: 0.6
     });
 
     // Fundo
-    const bottom = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), material);
-    bottom.rotation.x = -Math.PI / 2;
+    const bottom = new THREE.Mesh(new THREE.BoxGeometry(11, 1, 11), boxMaterial);
+    bottom.rotation.y = -Math.PI / 2;
     bottom.position.y = -1.5;
     bottom.receiveShadow = true;
     group.add(bottom);
 
     // Parede frontal
-    const front = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), material);
+    const front = new THREE.Mesh(new THREE.BoxGeometry(11, 4, 1), boxMaterial);
     front.position.set(0, 0.5, 5);
     front.rotation.y = Math.PI;
     front.castShadow = true;
@@ -100,14 +106,14 @@ export function createBoxPlane() {
     group.add(front);
 
     // Parede traseira
-    const back = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), material);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(11, 4, 1), boxMaterial);
     back.position.set(0, 0.5, -5);
     back.castShadow = true;
     back.receiveShadow = true;
     group.add(back);
 
     // Parede esquerda
-    const left = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), material);
+    const left = new THREE.Mesh(new THREE.BoxGeometry(11, 4, 1), boxMaterial);
     left.position.set(-5, 0.5, 0);
     left.rotation.y = Math.PI / 2;
     left.castShadow = true;
@@ -115,7 +121,7 @@ export function createBoxPlane() {
     group.add(left);
 
     // Parede direita
-    const right = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), material);
+    const right = new THREE.Mesh(new THREE.BoxGeometry(11, 4, 1), boxMaterial);
     right.position.set(5, 0.5, 0);
     right.rotation.y = -Math.PI / 2;
     right.castShadow = true;

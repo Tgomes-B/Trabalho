@@ -4,7 +4,7 @@ import { createLights } from './scripts/light.js';
 import { createSphere, createWaterPlane, createBoxPlane } from './scripts/objects.js';
 import { loadSkybox, loadShaders, loadTexture } from './scripts/loaders.js';
 
-// Função principal async para carregar shaders
+
 async function init() {
     // Cena
     const scene = new THREE.Scene();
@@ -16,6 +16,8 @@ async function init() {
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setClearColor(0xffffff, 1);
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -33,6 +35,11 @@ async function init() {
     depthRenderTarget.depthTexture.format = THREE.DepthFormat;
     depthRenderTarget.depthTexture.type = THREE.UnsignedShortType;
 
+    // Material para renderizar apenas depth
+    const depthMaterial = new THREE.MeshDepthMaterial();
+    depthMaterial.depthPacking = THREE.RGBADepthPacking;
+    depthMaterial.blending = THREE.NoBlending;
+
     // Controles
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -48,11 +55,9 @@ async function init() {
     const sphere = createSphere();
     scene.add(sphere);
 
-    // Caixa em volta do plano
     const box = createBoxPlane();
     scene.add(box);
 
-    // Plano de água com shader
     const waterPlane = createWaterPlane(camera, renderer, vert, frag, dudvMap, depthRenderTarget.depthTexture);
     scene.add(waterPlane);
 
@@ -62,7 +67,6 @@ async function init() {
     // Skybox
     loadSkybox(scene, './assest/skyBox.png');
 
-    // Resize
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -79,16 +83,14 @@ async function init() {
 
     // Animação
     function animate() {
-        requestAnimationFrame(animate);
-        
         controls.update();
         
-        // Esconder água para renderizar depth
+        // Passo 1: Renderizar depth da cena (sem a água)
         waterPlane.visible = false;
         renderer.setRenderTarget(depthRenderTarget);
         renderer.render(scene, camera);
         
-        // Mostrar água e renderizar cena final
+        // Passo 2: Renderizar cena final com a água
         waterPlane.visible = true;
         renderer.setRenderTarget(null);
         renderer.render(scene, camera);
@@ -100,7 +102,8 @@ async function init() {
         sphere.rotation.y += 0.01;
     }
 
-    animate();
+    // Usar setAnimationLoop do renderer
+    renderer.setAnimationLoop(animate);
 }
 
 // Iniciar
