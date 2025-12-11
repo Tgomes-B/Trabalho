@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-// Criar esfera
 export function createSphere() {
     const geometry = new THREE.SphereGeometry(1, 32, 32);
     const material = new THREE.MeshStandardMaterial({
@@ -57,7 +56,44 @@ export function createWaterPlane(camera, renderer, vertexShader, fragmentShader,
     return plane;
 }
 
-// Criar plano simples (sem shader)
+// Criar plano de cáusticas
+export function createCausticsPlane(camera, renderer, vertexShader, fragmentShader, causticsTexture, depthTexture, lightDir) {
+    const geometry = new THREE.PlaneGeometry(10, 10);
+    const pixelRatio = renderer.getPixelRatio();
+    
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            tDepth: { value: depthTexture },
+            tCaustics: { value: causticsTexture },
+            resolution: { value: new THREE.Vector2(window.innerWidth * pixelRatio, window.innerHeight * pixelRatio) },
+            cameraNear: { value: camera.near },
+            cameraFar: { value: camera.far },
+            time: { value: 0 },
+            inverseViewProjection: { value: new THREE.Matrix4() },
+            lightDirection: { value: lightDir.clone().normalize() },
+            causticsScale: { value: 2.5 },
+            causticsSpeed: { value: 0.05 },
+            causticsStrength: { value: 0.2 },
+            causticsSplit: { value: 0.0005 },
+            causticsColor: { value: new THREE.Color(0.5, 0.6, 0.7) }
+        },
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        depthTest: false
+    });
+
+    const plane = new THREE.Mesh(geometry, material);
+    plane.rotation.x = -Math.PI / 2;
+    plane.position.y = 1.4; 
+    plane.frustumCulled = false;
+    
+    return plane;
+}
+
+// Criar plano simples
 export function createPlane() {
     const geometry = new THREE.PlaneGeometry(10, 10);
     const material = new THREE.MeshStandardMaterial({
@@ -76,18 +112,12 @@ export function createPlane() {
     return plane;
 }
 
-//Caixa em volta do plano (sem a parte de cima)
+//Caixa 
 export function createBoxPlane() {
     const group = new THREE.Group();
     
-    /*const material = new THREE.MeshStandardMaterial({
-        color: "orange",
-        roughness: 0.4,
-        side: THREE.DoubleSide
-    });*/
-   const boxMaterial = new THREE.MeshLambertMaterial({ 
-    color: 0xea4d10,
-    roughness: 0.6
+    const boxMaterial = new THREE.MeshLambertMaterial({ 
+        color: 0xea4d10
     });
 
     // Fundo

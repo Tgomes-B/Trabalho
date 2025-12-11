@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createLights } from './scripts/light.js';
-import { createSphere, createWaterPlane, createBoxPlane } from './scripts/objects.js';
+import { createSphere, createWaterPlane, createBoxPlane, createCausticsPlane } from './scripts/objects.js';
 import { loadSkybox, loadShaders, loadTexture } from './scripts/loaders.js';
 
 
@@ -45,11 +45,18 @@ async function init() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
-    // Carregar shaders
+    // Carregar shaders de água
     const { vert, frag } = await loadShaders('./glsl/vert.glsl', './glsl/frag.glsl');
 
-    // Carregar textura dudv (noise)
+    // Carregar shaders de cáusticas
+    const causticsShaders = await loadShaders('./glsl/causticVert.glsl', './glsl/causticFrag.glsl');
+
+    // Carregar texturas
     const dudvMap = loadTexture('./assest/noise.jpg');
+    const causticsTexture = loadTexture('./assest/noise.jpg');
+
+    // Luzes
+    const { directionalLight } = createLights(scene);
 
     // Objetos
     const sphere = createSphere();
@@ -61,8 +68,18 @@ async function init() {
     const waterPlane = createWaterPlane(camera, renderer, vert, frag, dudvMap, depthRenderTarget.depthTexture);
     scene.add(waterPlane);
 
-    // Luzes
-    createLights(scene);
+    // Criar plano de cáusticas
+    const lightDir = directionalLight.position.clone();
+    const causticsPlane = createCausticsPlane(
+        camera, 
+        renderer, 
+        causticsShaders.vert, 
+        causticsShaders.frag, 
+        causticsTexture, 
+        depthRenderTarget.depthTexture,
+        lightDir
+    );
+    scene.add(causticsPlane);
 
     // Skybox
     loadSkybox(scene, './assest/skyBox.png');
@@ -79,24 +96,34 @@ async function init() {
         
         depthRenderTarget.setSize(width, height);
         waterPlane.material.uniforms.resolution.value.set(width, height);
+        causticsPlane.material.uniforms.resolution.value.set(width, height);
     });
 
     // Animação
     function animate() {
         controls.update();
         
-        // Passo 1: Renderizar depth da cena (sem a água)
+        // Atualizar matriz inversa de view-projection para reconstrução de posição
+        const viewProjection = new THREE.Matrix4();
+        viewProjection.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+        const inverseViewProjection = viewProjection.clone().invert();
+        causticsPlane.material.uniforms.inverseViewProjection.value.copy(inverseViewProjection);
+        
+        // Passo 1: Renderizar depth da cena (sem a água e cáusticas)
         waterPlane.visible = false;
+        causticsPlane.visible = false;
         renderer.setRenderTarget(depthRenderTarget);
         renderer.render(scene, camera);
         
-        // Passo 2: Renderizar cena final com a água
+        // Passo 2: Renderizar cena final com a água e cáusticas
         waterPlane.visible = true;
+        causticsPlane.visible = true;
         renderer.setRenderTarget(null);
         renderer.render(scene, camera);
         
-        // Atualizar tempo do shader de água
+        // Atualizar tempo dos shaders
         waterPlane.material.uniforms.time.value += 0.01;
+        causticsPlane.material.uniforms.time.value += 0.016;
         
         sphere.rotation.x += 0.01;
         sphere.rotation.y += 0.01;
