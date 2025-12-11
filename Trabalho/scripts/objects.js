@@ -42,10 +42,18 @@ export function createWaterPlane(camera, renderer, vertexShader, fragmentShader,
                     specularColor: new THREE.Vector3(1, 1, 1),
                     shininess: 32
                 }
-            }
+            },
+            u_time: { value: 0 },
+            u_pointsize: { value: 1.0 },
+            u_noise_amp_1: { value: 0.15 },
+            u_noise_freq_1: { value: 1.0 },
+            u_spd_modifier_1: { value: 0.5 },
+            u_noise_amp_2: { value: 0.1 },
+            u_noise_freq_2: { value: 3.0 },
+            u_spd_modifier_2: { value: 0.3 },
         },
         vertexShader: vertexShader,
-        fragmentShader: fragmentShader
+        fragmentShader: fragmentShader,
     });
 
     const plane = new THREE.Mesh(geometry, material);
@@ -75,7 +83,15 @@ export function createCausticsPlane(camera, renderer, vertexShader, fragmentShad
             causticsSpeed: { value: 0.05 },
             causticsStrength: { value: 0.2 },
             causticsSplit: { value: 0.0005 },
-            causticsColor: { value: new THREE.Color(0.5, 0.6, 0.7) }
+            causticsColor: { value: new THREE.Color(0.5, 0.6, 0.7) },
+            u_time: { value: 0 },
+            u_pointsize: { value: 1.0 },
+            u_noise_amp_1: { value: 0.15 },
+            u_noise_freq_1: { value: 1.0 },
+            u_spd_modifier_1: { value: 0.5 },
+            u_noise_amp_2: { value: 0.1 },
+            u_noise_freq_2: { value: 3.0 },
+            u_spd_modifier_2: { value: 0.3 },
         },
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,

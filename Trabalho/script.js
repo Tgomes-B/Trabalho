@@ -123,6 +123,7 @@ async function init() {
         
         // Atualizar tempo dos shaders
         waterPlane.material.uniforms.time.value += 0.01;
+        waterPlane.material.uniforms.u_time.value += 0.01;
         causticsPlane.material.uniforms.time.value += 0.016;
         
         sphere.rotation.x += 0.01;
