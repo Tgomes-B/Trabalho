@@ -1,138 +1,137 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createLights } from './scripts/light.js';
-import { createSphere, createWaterPlane, createBoxPlane, createCausticsPlane } from './scripts/objects.js';
-import { loadSkybox, loadShaders, loadTexture } from './scripts/loaders.js';
+import { createSphere, createBottomSphere, createBox, createWater, createCaustics } from './scripts/objects.js';
+import { loadSkybox, loadShaders, loadTexture, loadModel } from './scripts/loaders.js';
+import { SCENE_CONFIG } from './scripts/config.js';
 
 
 async function init() {
-    // Cena
+    // Setup
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
 
-    // Câmera
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 5, 10);
+    camera.position.set(0, 10, 25);
+    camera.layers.enable(1);
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setClearColor(0xffffff, 1);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;  // PCFSoft funciona melhor
     document.body.appendChild(renderer.domElement);
 
-    // Criar Depth Render Target
-    const pixelRatio = renderer.getPixelRatio();
-    const depthRenderTarget = new THREE.WebGLRenderTarget(
-        window.innerWidth * pixelRatio,
-        window.innerHeight * pixelRatio
-    );
-    depthRenderTarget.texture.minFilter = THREE.NearestFilter;
-    depthRenderTarget.texture.magFilter = THREE.NearestFilter;
-    depthRenderTarget.depthTexture = new THREE.DepthTexture();
-    depthRenderTarget.depthTexture.format = THREE.DepthFormat;
-    depthRenderTarget.depthTexture.type = THREE.UnsignedShortType;
-
-    // Material para renderizar apenas depth
-    const depthMaterial = new THREE.MeshDepthMaterial();
-    depthMaterial.depthPacking = THREE.RGBADepthPacking;
-    depthMaterial.blending = THREE.NoBlending;
+    // Depth Render Target
+    const createDepthRT = () => {
+        const pr = renderer.getPixelRatio();
+        const rt = new THREE.WebGLRenderTarget(window.innerWidth * pr, window.innerHeight * pr);
+        rt.texture.minFilter = THREE.NearestFilter;
+        rt.texture.magFilter = THREE.NearestFilter;
+        rt.depthTexture = new THREE.DepthTexture();
+        rt.depthTexture.format = THREE.DepthFormat;
+        rt.depthTexture.type = THREE.UnsignedIntType;
+        return rt;
+    };
+    const depthRT = createDepthRT();
 
     // Controles
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
-    // Carregar shaders de água
-    const { vert, frag } = await loadShaders('./glsl/vert.glsl', './glsl/frag.glsl');
-
-    // Carregar shaders de cáusticas
-    const causticsShaders = await loadShaders('./glsl/causticVert.glsl', './glsl/causticFrag.glsl');
-
-    // Carregar texturas
+    // Carregar assets
+    const waterShaders = await loadShaders('./glsl/vert.glsl', './glsl/frag.glsl');
+    const causticShaders = await loadShaders('./glsl/causticVert.glsl', './glsl/causticFrag.glsl');
     const dudvMap = loadTexture('./assest/noise.jpg');
-    const causticsTexture = loadTexture('./assest/noise.jpg');
+    const causticsTexture = loadTexture('./assest/caustic.jpg'); 
 
     // Luzes
     const { directionalLight } = createLights(scene);
 
     // Objetos
-    const sphere = createSphere();
-    scene.add(sphere);
+    scene.add(createBox());
+    
+    try {
+        const island = await loadModel('./assest/scene.gltf');
+        
+        island.position.set(0, 2.62, 0);  
+        island.scale.set(0.03, 0.03, 0.03);  
+        // island.rotation.y = Math.PI / 2;  // Rotação se necessário
+        
+        scene.add(island);
+        console.log('Modelo carregado com sucesso!');
+    } catch (error) {
+        console.error('Falha ao carregar modelo:', error);
+    }
 
-    const box = createBoxPlane();
-    scene.add(box);
-
-    const waterPlane = createWaterPlane(camera, renderer, vert, frag, dudvMap, depthRenderTarget.depthTexture);
-    scene.add(waterPlane);
-
-    // Criar plano de cáusticas
-    const lightDir = directionalLight.position.clone();
-    const causticsPlane = createCausticsPlane(
-        camera, 
-        renderer, 
-        causticsShaders.vert, 
-        causticsShaders.frag, 
-        causticsTexture, 
-        depthRenderTarget.depthTexture,
-        lightDir
+    // Água e cáusticas
+    const water = createWater(
+        camera, renderer,
+        waterShaders.vert, waterShaders.frag,
+        dudvMap, depthRT.depthTexture
     );
-    scene.add(causticsPlane);
+    scene.add(water);
+
+    const caustics = createCaustics(
+        camera, renderer,
+        causticShaders.vert, causticShaders.frag,
+        causticsTexture, depthRT.depthTexture,
+        directionalLight.position
+    );
+    scene.add(caustics);
 
     // Skybox
     loadSkybox(scene, './assest/skyBox.png');
 
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
+    const onResize = () => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const pr = renderer.getPixelRatio();
+        
+        camera.aspect = w / h;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(w, h);
+        depthRT.setSize(w * pr, h * pr);
         
-        // Atualizar resolução do shader e depth target
-        const newPixelRatio = renderer.getPixelRatio();
-        const width = window.innerWidth * newPixelRatio;
-        const height = window.innerHeight * newPixelRatio;
-        
-        depthRenderTarget.setSize(width, height);
-        waterPlane.material.uniforms.resolution.value.set(width, height);
-        causticsPlane.material.uniforms.resolution.value.set(width, height);
-    });
+        const res = new THREE.Vector2(w * pr, h * pr);
+        water.material.uniforms.resolution.value.copy(res);
+        caustics.material.uniforms.resolution.value.copy(res);
+    };
+    window.addEventListener('resize', onResize);
 
     // Animação
+    const viewProjection = new THREE.Matrix4();
+    const deltaTime = 0.01;
+    
     function animate() {
         controls.update();
         
-        // Atualizar matriz inversa de view-projection para reconstrução de posição
-        const viewProjection = new THREE.Matrix4();
+        // Atualizar matriz inversa para cáusticas
         viewProjection.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-        const inverseViewProjection = viewProjection.clone().invert();
-        causticsPlane.material.uniforms.inverseViewProjection.value.copy(inverseViewProjection);
-        
-        // Passo 1: Renderizar depth da cena (sem a água e cáusticas)
-        waterPlane.visible = false;
-        causticsPlane.visible = false;
-        renderer.setRenderTarget(depthRenderTarget);
+        caustics.material.uniforms.inverseViewProjection.value.copy(viewProjection).invert();
+
+        // Render depth (sem água e cáusticas)
+        water.visible = false;
+        caustics.visible = false;
+        camera.layers.disable(1);
+        renderer.setRenderTarget(depthRT);
         renderer.render(scene, camera);
-        
-        // Passo 2: Renderizar cena final com a água e cáusticas
-        waterPlane.visible = true;
-        causticsPlane.visible = true;
         renderer.setRenderTarget(null);
+        
+        // Render final
+        camera.layers.enable(1);
+        water.visible = true;
+        caustics.visible = true;
         renderer.render(scene, camera);
         
-        // Atualizar tempo dos shaders
-        waterPlane.material.uniforms.time.value += 0.01;
-        waterPlane.material.uniforms.u_time.value += 0.01;
-        causticsPlane.material.uniforms.time.value += 0.016;
+        // Atualizar tempo
+        water.material.uniforms.time.value += deltaTime;
+        caustics.material.uniforms.time.value += deltaTime;
         
-        sphere.rotation.x += 0.01;
-        sphere.rotation.y += 0.01;
     }
 
-    // Usar setAnimationLoop do renderer
     renderer.setAnimationLoop(animate);
 }
 
-// Iniciar
 init();

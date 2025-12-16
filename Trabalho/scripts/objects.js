@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { SCENE_CONFIG, getPositions, createNoiseUniforms, createCameraUniforms } from './config.js';
 
 export function createSphere() {
     const geometry = new THREE.SphereGeometry(1, 32, 32);
@@ -8,34 +9,80 @@ export function createSphere() {
         roughness: 0.4
     });
     const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.y = 1.5;
+    sphere.position.y = SCENE_CONFIG.water.y;
     sphere.castShadow = true;
     sphere.receiveShadow = true;
     return sphere;
 }
 
+export function createBottomSphere() {
+    const pos = getPositions();
+    const geometry = new THREE.SphereGeometry(1.5, 32, 32);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xcccccc,
+        metalness: 0.1,
+        roughness: 0.8
+    });
+    const sphere = new THREE.Mesh(geometry, material);
+    sphere.position.set(3.0, pos.bottomY + 1.5, 0);
+    sphere.castShadow = true;
+    sphere.receiveShadow = true;
+    return sphere;
+}
+
+export function createBox() {
+    const group = new THREE.Group();
+    const { box } = SCENE_CONFIG;
+    const pos = getPositions();
+    
+    const material = new THREE.MeshStandardMaterial({ 
+        color: 0xcccccc,
+        roughness: 0.9,
+        metalness: 0.1
+    });
+
+    // Função helper para criar parede
+    const createWall = (width, height, depth, position, receiveShadow = true, castShadow = true) => {
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.copy(position);
+        mesh.receiveShadow = receiveShadow;
+        mesh.castShadow = castShadow;
+        return mesh;
+    };
+
+    
+    group.add(createWall(box.size, box.thickness, box.size, new THREE.Vector3(0, pos.bottomY, 0), true, false));
+    
+    group.add(createWall(box.size + box.thickness, box.height, box.thickness, new THREE.Vector3(0, pos.wallY, pos.halfBox)));
+    group.add(createWall(box.size + box.thickness, box.height, box.thickness, new THREE.Vector3(0, pos.wallY, -pos.halfBox)));
+    group.add(createWall(box.thickness, box.height, box.size + box.thickness, new THREE.Vector3(-pos.halfBox, pos.wallY, 0)));
+    group.add(createWall(box.thickness, box.height, box.size + box.thickness, new THREE.Vector3(pos.halfBox, pos.wallY, 0)));
+
+    return group;
+}
+
 // Criar plano de água com shader
-export function createWaterPlane(camera, renderer, vertexShader, fragmentShader, dudvMap, depthTexture) {
-    const geometry = new THREE.PlaneGeometry(10, 10);
-    const pixelRatio = renderer.getPixelRatio();
+export function createWater(camera, renderer, vertexShader, fragmentShader, dudvMap, depthTexture) {
+    const { box, water } = SCENE_CONFIG;
+    const geometry = new THREE.PlaneGeometry(box.size, box.size, 32, 32);
     
     const material = new THREE.ShaderMaterial({
         uniforms: {
-            isOrthographic: { value: false },
-            biasMultiplier: { value: 1 },
+            ...createCameraUniforms(camera, renderer),
             tDepth: { value: depthTexture },
+            tDudv: { value: dudvMap },
+            waterColor: { value: new THREE.Color(water.color) },
+            foamColor: { value: new THREE.Color(water.foamColor) },
+            //isOrthographic: { value: false },
+            biasMultiplier: { value: 1 },
             edgePatternScale: { value: 5.0 },
             falloffDistance: { value: 0.8 },
             leadingEdgeFalloff: { value: 0.5 },
             edgeFalloffBias: { value: 1.0 },
-            waterColor: { value: new THREE.Color(0xaaccff) },
-            foamColor: { value: new THREE.Color(0xeeeeee) },
             threshold: { value: 0.1 },
             time: { value: 0 },
-            tDudv: { value: dudvMap },
-            resolution: { value: new THREE.Vector2(window.innerWidth * pixelRatio, window.innerHeight * pixelRatio) },
-            cameraNear: { value: camera.near },
-            cameraFar: { value: camera.far },
+            u_pointsize: { value: 1.4 }, 
             material: {
                 value: {
                     diffuseColor: new THREE.Vector3(0.75, 0.75, 0.75),
@@ -43,136 +90,63 @@ export function createWaterPlane(camera, renderer, vertexShader, fragmentShader,
                     shininess: 32
                 }
             },
-            u_time: { value: 0 },
-            u_pointsize: { value: 1.0 },
-            u_noise_amp_1: { value: 0.15 },
-            u_noise_freq_1: { value: 1.0 },
-            u_spd_modifier_1: { value: 0.5 },
-            u_noise_amp_2: { value: 0.1 },
-            u_noise_freq_2: { value: 3.0 },
-            u_spd_modifier_2: { value: 0.3 },
+            ...createNoiseUniforms()
         },
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
+        vertexShader,
+        fragmentShader,
+        transparent: true,
+        side: THREE.DoubleSide
     });
 
-    const plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = -Math.PI / 2;
-    plane.position.y = 1.5;
-    plane.receiveShadow = true;
-    plane.castShadow = true;
-    return plane;
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.y = water.y;  
+    mesh.receiveShadow = true;
+    mesh.castShadow = false;
+
+    mesh.layers.set(1);
+
+    return mesh;
 }
 
-// Criar plano de cáusticas
-export function createCausticsPlane(camera, renderer, vertexShader, fragmentShader, causticsTexture, depthTexture, lightDir) {
-    const geometry = new THREE.PlaneGeometry(10, 10);
-    const pixelRatio = renderer.getPixelRatio();
+// Criar plano de cáusticas (fullscreen quad)
+export function createCaustics(camera, renderer, vertexShader, fragmentShader, causticsTexture, depthTexture, lightDir) {
+    const { box, water, caustics } = SCENE_CONFIG;
+    
+    // Usar PlaneGeometry 2x2 em clip space (fullscreen quad)
+    const geometry = new THREE.PlaneGeometry(2, 2);
     
     const material = new THREE.ShaderMaterial({
         uniforms: {
+            ...createCameraUniforms(camera, renderer),
             tDepth: { value: depthTexture },
             tCaustics: { value: causticsTexture },
-            resolution: { value: new THREE.Vector2(window.innerWidth * pixelRatio, window.innerHeight * pixelRatio) },
-            cameraNear: { value: camera.near },
-            cameraFar: { value: camera.far },
-            time: { value: 0 },
             inverseViewProjection: { value: new THREE.Matrix4() },
             lightDirection: { value: lightDir.clone().normalize() },
-            causticsScale: { value: 2.5 },
-            causticsSpeed: { value: 0.05 },
-            causticsStrength: { value: 0.2 },
-            causticsSplit: { value: 0.0005 },
-            causticsColor: { value: new THREE.Color(0.5, 0.6, 0.7) },
-            u_time: { value: 0 },
-            u_pointsize: { value: 1.0 },
-            u_noise_amp_1: { value: 0.15 },
-            u_noise_freq_1: { value: 1.0 },
-            u_spd_modifier_1: { value: 0.5 },
-            u_noise_amp_2: { value: 0.1 },
-            u_noise_freq_2: { value: 3.0 },
-            u_spd_modifier_2: { value: 0.3 },
+            causticsScale: { value: caustics.scale },
+            causticsSpeed: { value: caustics.speed },
+            causticsStrength: { value: caustics.strength },
+            causticsSplit: { value: caustics.split },
+            causticsColor: { value: new THREE.Color(caustics.color) },
+            waterLevel: { value: water.y },
+            boxSize: { value: box.size },
+            time: { value: 0 },
+            ...createNoiseUniforms()
         },
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
+        vertexShader,
+        fragmentShader,
         transparent: true,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
-        depthTest: false
+        depthTest: false  
     });
 
-    const plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = -Math.PI / 2;
-    plane.position.y = 1.4; 
-    plane.frustumCulled = false;
-    
-    return plane;
-}
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.frustumCulled = false;
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
 
-// Criar plano simples
-export function createPlane() {
-    const geometry = new THREE.PlaneGeometry(10, 10);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x0077be,
-        roughness: 0.3,
-        metalness: 0.1,
-        transparent: true,
-        opacity: 0.8,
-        side: THREE.DoubleSide
-    });
-    const plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = -Math.PI / 2;
-    plane.position.y = 1.5;
-    plane.receiveShadow = true;
-    plane.castShadow = true;
-    return plane;
-}
+    mesh.layers.set(1);
 
-//Caixa 
-export function createBoxPlane() {
-    const group = new THREE.Group();
-    
-    const boxMaterial = new THREE.MeshLambertMaterial({ 
-        color: 0xea4d10
-    });
-
-    // Fundo
-    const bottom = new THREE.Mesh(new THREE.BoxGeometry(11, 1, 11), boxMaterial);
-    bottom.rotation.y = -Math.PI / 2;
-    bottom.position.y = -1.5;
-    bottom.receiveShadow = true;
-    group.add(bottom);
-
-    // Parede frontal
-    const front = new THREE.Mesh(new THREE.BoxGeometry(11, 4, 1), boxMaterial);
-    front.position.set(0, 0.5, 5);
-    front.rotation.y = Math.PI;
-    front.castShadow = true;
-    front.receiveShadow = true;
-    group.add(front);
-
-    // Parede traseira
-    const back = new THREE.Mesh(new THREE.BoxGeometry(11, 4, 1), boxMaterial);
-    back.position.set(0, 0.5, -5);
-    back.castShadow = true;
-    back.receiveShadow = true;
-    group.add(back);
-
-    // Parede esquerda
-    const left = new THREE.Mesh(new THREE.BoxGeometry(11, 4, 1), boxMaterial);
-    left.position.set(-5, 0.5, 0);
-    left.rotation.y = Math.PI / 2;
-    left.castShadow = true;
-    left.receiveShadow = true;
-    group.add(left);
-
-    // Parede direita
-    const right = new THREE.Mesh(new THREE.BoxGeometry(11, 4, 1), boxMaterial);
-    right.position.set(5, 0.5, 0);
-    right.rotation.y = -Math.PI / 2;
-    right.castShadow = true;
-    right.receiveShadow = true;
-    group.add(right);
-
-    return group;
+    return mesh;
 }

@@ -9,7 +9,6 @@ struct Material
     float shininess;
 };
 
-//uniform bool isOrthographic;
 uniform vec3 waterColor;
 uniform vec3 foamColor;
 uniform vec2 resolution;
@@ -31,9 +30,6 @@ varying vec3 vNormal;
 varying vec3 viewDir;
 varying vec3 fragPos;
 
-
-const float strength = 1.0;
-
 float getDepth(vec2 screenPosition)
 {
     return texture2D(tDepth, screenPosition).x;
@@ -41,10 +37,8 @@ float getDepth(vec2 screenPosition)
 
 float getViewZ(float depth)
 {
-    if (isOrthographic)
-        return orthographicDepthToViewZ(depth, cameraNear, cameraFar);
-    else
-        return perspectiveDepthToViewZ(depth, cameraNear, cameraFar);
+    // Sempre perspectiva (removeu isOrthographic)
+    return perspectiveDepthToViewZ(depth, cameraNear, cameraFar);
 }
 
 void main()
@@ -65,7 +59,7 @@ void main()
     mask = pow(mask, 2.0);
     mask = clamp(mask, 0.0, 1.0);
 
-    gl_FragColor = vec4(waterColor, 1.0);
+    gl_FragColor = vec4(waterColor, 0.7);
 
     if(diff < falloffDistance * leadingEdgeFalloff)
     {
@@ -79,5 +73,9 @@ void main()
 
     vec3 edge = foamColor * falloff;
     gl_FragColor.rgb += clamp(edge - vec3(mask), 0.0, 1.0); 
-    gl_FragColor.a = 1.0;
+    
+    gl_FragColor.a += falloff * 0.2;
+    gl_FragColor.a = clamp(gl_FragColor.a, 0.0, 0.85);
+
+    #include <fog_fragment>
 }
