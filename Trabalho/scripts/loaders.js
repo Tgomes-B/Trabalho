@@ -37,6 +37,7 @@ export async function loadModel(path) {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.layers.set(0);
                     }
                 });
                 

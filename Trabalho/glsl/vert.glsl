@@ -21,6 +21,9 @@ uniform float u_noise_amp_2;
 uniform float u_noise_freq_2;
 uniform float u_spd_modifier_2;
 
+varying float vWaveHeight;
+varying vec2 vWaveUV;
+varying vec2 vFoamUV;
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -69,13 +72,21 @@ void main()
 	#include <worldpos_vertex>
 	#include <shadowmap_vertex>
 	#include <fog_vertex>
+
     
 	vec3 pos = position;
 
 	pos.z += noise(pos.xy * u_noise_freq_1 + time * u_spd_modifier_1)*u_noise_amp_1;
 	pos.z += noise(rotate2d(PI/6.0)*pos.yx * u_noise_freq_2 - time * u_spd_modifier_2 *0.6) *u_noise_amp_2;
 
+	float wave = noise(pos.xy * u_noise_freq_1 + time * u_spd_modifier_1) * u_noise_amp_1;
+    wave += noise(rotate2d(PI/6.0)*pos.yx * u_noise_freq_2 - time * u_spd_modifier_2 *0.6) * u_noise_amp_2;
+
+    vWaveHeight = wave;
+	vWaveUV = pos.xy;
+
 	vUV = uv;
+	vFoamUV = uv + normal.xz * vWaveHeight * 0.5;
 
 	vec4 worldPos = modelMatrix * vec4(pos,1.0);
 	mvPosition = viewMatrix *  worldPos;

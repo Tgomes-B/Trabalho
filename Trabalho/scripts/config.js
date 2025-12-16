@@ -13,7 +13,7 @@ export const SCENE_CONFIG = {
     water: {
         y: 1.5,
         color: 0xaaccff,
-        foamColor: 0xeeeeee
+        foamColor: "rgb(255, 255, 255)"
     },
     
     // Noise compartilhado

@@ -6,6 +6,8 @@ import { loadSkybox, loadShaders, loadTexture, loadModel } from '/Trabalho/scrip
 import { SCENE_CONFIG } from '/Trabalho/scripts/config.js';
 
 let boat = null;
+const foamTexture = loadTexture('Trabalho/assest/espuma.png');
+const bottomTexture = loadTexture('Trabalho/assest/GLTF/textures/GroundSand.jpg');
 
 async function init() {
     // Setup
@@ -20,7 +22,7 @@ async function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;  // PCFSoft funciona melhor
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
 
     // Depth Render Target
@@ -60,6 +62,12 @@ async function init() {
         boat.scale.set(0.008, 0.008, 0.008);
         scene.add(boat);
 
+        const anchor = await loadModel('Trabalho/assest/GLTF/anchor.gltf');
+        anchor.position.set(6.0, SCENE_CONFIG.water.y + 2.4, 5.5);
+        anchor.rotation.z = (5 * Math.PI) / 4;
+        anchor.scale.set(5, 5, 5);
+        scene.add(anchor);
+
         const rock = await loadModel('Trabalho/assest/GLTF/rock.gltf');
         const numRocks = 12;
         const rocksPos = [];
@@ -85,8 +93,8 @@ async function init() {
 
         const island = await loadModel('Trabalho/assest/GLTF/scene.gltf');
 
-        island.position.set(0, 1.5, 0);
-        island.scale.set(3, 3, 3);
+        island.position.set(-8.7, 1.5, -4.3);
+        island.scale.set(3.5, 3.5, 3.5);
         // island.rotation.y = Math.PI / 2;  // Rotação se necessário
         
         scene.add(island);
@@ -99,8 +107,11 @@ async function init() {
     const water = createWater(
         camera, renderer,
         waterShaders.vert, waterShaders.frag,
-        dudvMap, depthRT.depthTexture
+        dudvMap, depthRT.depthTexture,
+        foamTexture,
+        bottomTexture
     );
+    
     scene.add(water);
 
     const caustics = createCaustics(

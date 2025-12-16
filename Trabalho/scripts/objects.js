@@ -78,7 +78,7 @@ export function createBox() {
 }
 
 // Criar plano de água com shader
-export function createWater(camera, renderer, vertexShader, fragmentShader, dudvMap, depthTexture) {
+export function createWater(camera, renderer, vertexShader, fragmentShader, dudvMap, depthTexture, foamTexture, bottomTexture) {
     const { box, water } = SCENE_CONFIG;
     const geometry = new THREE.PlaneGeometry(box.size, box.size, 32, 32);
     
@@ -90,11 +90,13 @@ export function createWater(camera, renderer, vertexShader, fragmentShader, dudv
             waterColor: { value: new THREE.Color(water.color) },
             foamColor: { value: new THREE.Color(water.foamColor) },
             //isOrthographic: { value: false },
-            biasMultiplier: { value: 1 },
-            edgePatternScale: { value: 5.0 },
-            falloffDistance: { value: 0.8 },
+            tFoam: { value: foamTexture },
+            tBottom: { value: bottomTexture },
+            biasMultiplier: { value: 0.5 },
+            edgePatternScale: { value: 1.5 },
+            falloffDistance: { value: 0.05 },
             leadingEdgeFalloff: { value: 0.5 },
-            edgeFalloffBias: { value: 1.0 },
+            edgeFalloffBias: { value: 5.0 },
             threshold: { value: 0.1 },
             time: { value: 0 },
             u_pointsize: { value: 1.4 }, 
