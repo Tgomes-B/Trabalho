@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createLights } from './scripts/light.js';
-import { createSphere, createBottomSphere, createBox, createWater, createCaustics } from './scripts/objects.js';
-import { loadSkybox, loadShaders, loadTexture, loadModel } from './scripts/loaders.js';
-import { SCENE_CONFIG } from './scripts/config.js';
+import { createLights } from '/Trabalho/scripts/light.js';
+import { createSphere, createBottomSphere, createBox, createWater, createCaustics } from '/Trabalho/scripts/objects.js';
+import { loadSkybox, loadShaders, loadTexture, loadModel } from '/Trabalho/scripts/loaders.js';
+import { SCENE_CONFIG } from '/Trabalho/scripts/config.js';
 
 let boat = null;
 
@@ -42,10 +42,10 @@ async function init() {
     controls.dampingFactor = 0.05;
 
     // Carregar assets
-    const waterShaders = await loadShaders('./glsl/vert.glsl', './glsl/frag.glsl');
-    const causticShaders = await loadShaders('./glsl/causticVert.glsl', './glsl/causticFrag.glsl');
-    const dudvMap = loadTexture('./assest/noise.jpg');
-    const causticsTexture = loadTexture('./assest/caustic.jpg'); 
+    const waterShaders = await loadShaders('Trabalho/glsl/vert.glsl', 'Trabalho/glsl/frag.glsl');
+    const causticShaders = await loadShaders('Trabalho/glsl/causticVert.glsl', 'Trabalho/glsl/causticFrag.glsl');
+    const dudvMap = loadTexture('Trabalho/assest/noise.jpg');
+    const causticsTexture = loadTexture('Trabalho/assest/caustic.jpg');
 
     // Luzes
     const { directionalLight } = createLights(scene);
@@ -54,13 +54,13 @@ async function init() {
     scene.add(createBox());
     
     try {
-        boat = await loadModel('./assest/GLTF/boat.gltf');
+        boat = await loadModel('Trabalho/assest/GLTF/boat.gltf');
         boat.position.set(5.0, SCENE_CONFIG.water.y + 0.15, -4.5);
         boat.rotation.y = (Math.PI) / 4;
         boat.scale.set(0.008, 0.008, 0.008);
         scene.add(boat);
- 
-        const rock = await loadModel('./assest/GLTF/rock.gltf');
+
+        const rock = await loadModel('Trabalho/assest/GLTF/rock.gltf');
         const numRocks = 12;
         const rocksPos = [];
 
@@ -83,10 +83,10 @@ async function init() {
 
         }
 
-        const island = await loadModel('./assest/GLTF/scene.gltf');
-        
-        island.position.set(0, 1.5, 0);  
-        island.scale.set(3, 3, 3);  
+        const island = await loadModel('Trabalho/assest/GLTF/scene.gltf');
+
+        island.position.set(0, 1.5, 0);
+        island.scale.set(3, 3, 3);
         // island.rotation.y = Math.PI / 2;  // Rotação se necessário
         
         scene.add(island);
@@ -112,7 +112,7 @@ async function init() {
     scene.add(caustics);
 
     // Skybox
-    loadSkybox(scene, './assest/skyBox.png');
+    loadSkybox(scene, 'Trabalho/assest/skyBox.png');
 
     const onResize = () => {
         const w = window.innerWidth;
@@ -145,7 +145,7 @@ async function init() {
             Math.sin(t * speed + boat.position.x * freq) * amp * 0.25 +
             Math.cos(t * speed * 0.7 + boat.position.z * freq * 0.7) * amp * 0.15;
 
-        boat.position.y = waveY + 0.65;
+        boat.position.y = waveY + 0.6;
 
         boat.rotation.x = Math.sin(t * speed + boat.position.x) * 0.07;
         boat.rotation.z = Math.cos(t * speed * 0.7 + boat.position.z) * 0.07;

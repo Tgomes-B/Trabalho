@@ -43,7 +43,7 @@ export function createBox() {
     });
 
     // Material com textura de areia para o fundo
-    const sandTexture = loadTexture('./assest/GLTF/textures/GroundSand.jpg');
+    const sandTexture = loadTexture('Trabalho/assest/GLTF/textures/GroundSand.jpg');
     sandTexture.wrapS = THREE.RepeatWrapping;
     sandTexture.wrapT = THREE.RepeatWrapping;
     sandTexture.repeat.set(5, 5); 
