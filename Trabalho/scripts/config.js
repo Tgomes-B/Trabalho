@@ -16,23 +16,23 @@ export const SCENE_CONFIG = {
         foamColor: 0xeeeeee
     },
     
-    // Noise compartilhado (água e cáusticas usam os mesmos valores!)
+    // Noise compartilhado
     noise: {
-        amp1: 0.6,
-        freq1: 2.0,
-        speed1: 0.5,
+        amp1: 0.5,
+        freq1: 1.0,
+        speed1: 0.7,
         amp2: 0.5,
-        freq2: 3.0,
+        freq2: 1.0,
         speed2: 0.7
     },
     
     // Cáusticas
     caustics: {
-        scale: 1.0,
-        speed: 0.08,
-        strength: 0.4,
-        split: 0.008,
-        color: 0xaaccff
+        scale: 0.5,
+        speed: 0.5,
+        strength: 1.45,
+        split: 0.01,
+        color: "rgb(113, 175, 216)"
     }
 };
 

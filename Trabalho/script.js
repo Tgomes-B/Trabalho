@@ -5,6 +5,7 @@ import { createSphere, createBottomSphere, createBox, createWater, createCaustic
 import { loadSkybox, loadShaders, loadTexture, loadModel } from './scripts/loaders.js';
 import { SCENE_CONFIG } from './scripts/config.js';
 
+let boat = null;
 
 async function init() {
     // Setup
@@ -53,10 +54,39 @@ async function init() {
     scene.add(createBox());
     
     try {
-        const island = await loadModel('./assest/scene.gltf');
+        boat = await loadModel('./assest/GLTF/boat.gltf');
+        boat.position.set(5.0, SCENE_CONFIG.water.y + 0.15, -4.5);
+        boat.rotation.y = (Math.PI) / 4;
+        boat.scale.set(0.008, 0.008, 0.008);
+        scene.add(boat);
+ 
+        const rock = await loadModel('./assest/GLTF/rock.gltf');
+        const numRocks = 12;
+        const rocksPos = [];
+
+        for (let i = 0; i < numRocks; i++) {
+        // Gera posições aleatórias dentro da área da box
+        const x = (Math.random() - 0.5) * SCENE_CONFIG.box.size * 0.8;
+        const z = (Math.random() - 0.5) * SCENE_CONFIG.box.size * 0.8;
+        const y = -2.2; 
+
+        const rockClone = rock.clone(true);
+        rockClone.position.set(x, y, z);
+
+        const scale = 0.5 + Math.random() * 2.0;
+        rockClone.scale.set(scale, scale, scale);
+
+        rockClone.rotation.y = Math.random() * Math.PI * 2;
+
+        scene.add(rockClone);
+        rocksPos.push(rockClone.position.clone());
+
+        }
+
+        const island = await loadModel('./assest/GLTF/scene.gltf');
         
-        island.position.set(0, 2.62, 0);  
-        island.scale.set(0.03, 0.03, 0.03);  
+        island.position.set(0, 1.5, 0);  
+        island.scale.set(3, 3, 3);  
         // island.rotation.y = Math.PI / 2;  // Rotação se necessário
         
         scene.add(island);
@@ -105,6 +135,21 @@ async function init() {
     const deltaTime = 0.01;
     
     function animate() {
+        if(boat) {
+        const t = water.material.uniforms.time.value;
+        const amp = SCENE_CONFIG.noise.amp1;
+        const freq = SCENE_CONFIG.noise.freq1;
+        const speed = SCENE_CONFIG.noise.speed1;
+
+         const waveY = SCENE_CONFIG.water.y +
+            Math.sin(t * speed + boat.position.x * freq) * amp * 0.25 +
+            Math.cos(t * speed * 0.7 + boat.position.z * freq * 0.7) * amp * 0.15;
+
+        boat.position.y = waveY + 0.65;
+
+        boat.rotation.x = Math.sin(t * speed + boat.position.x) * 0.07;
+        boat.rotation.z = Math.cos(t * speed * 0.7 + boat.position.z) * 0.07;
+        }
         controls.update();
         
         // Atualizar matriz inversa para cáusticas

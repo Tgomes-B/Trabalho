@@ -1,0 +1,323 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 17109,
+      "max": [
+        0.8729419708251953,
+        0.9508270025253296,
+        0.882906973361969
+      ],
+      "min": [
+        -0.8410519957542419,
+        -0.9521129727363586,
+        -0.8820430040359497
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 205308,
+      "componentType": 5126,
+      "count": 17109,
+      "max": [
+        0.9999547004699707,
+        0.9999734163284302,
+        0.9999743700027466
+      ],
+      "min": [
+        -0.9999914169311523,
+        -0.9999814033508301,
+        -0.9999978542327881
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 17109,
+      "max": [
+        0.9996474385261536,
+        0.9997122287750244,
+        0.9999987483024597,
+        1.0
+      ],
+      "min": [
+        -0.9999415278434753,
+        -0.9985945820808411,
+        -0.9997638463973999,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 17109,
+      "max": [
+        0.9989910125732422,
+        0.998991072177887
+      ],
+      "min": [
+        0.0010088818380609155,
+        0.001054227352142334
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 136872,
+      "componentType": 5126,
+      "count": 17109,
+      "max": [
+        0.9989910125732422,
+        0.998991072177887
+      ],
+      "min": [
+        0.0010088818380609155,
+        0.001054227352142334
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 273744,
+      "componentType": 5126,
+      "count": 17109,
+      "max": [
+        0.9989910125732422,
+        0.998991072177887
+      ],
+      "min": [
+        0.0010088818380609155,
+        0.001054227352142334
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 410616,
+      "componentType": 5126,
+      "count": 17109,
+      "max": [
+        0.9989910125732422,
+        0.998991072177887
+      ],
+      "min": [
+        0.0010088818380609155,
+        0.001054227352142334
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 65574,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "m.bazdideh79 (https://sketchfab.com/m.bazdideh79)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/floating-island-luminosity-ef57adc4dacd4b948658f5aee1272e61",
+      "title": "Floating Island Luminosity"
+    },
+    "generator": "Sketchfab-16.85.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 262296,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 547488,
+      "byteOffset": 262296,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 410616,
+      "byteOffset": 809784,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 273744,
+      "byteOffset": 1220400,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 1494144,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/Material_0.005_baseColor.jpeg"
+    },
+    {
+      "uri": "textures/Material_0.005_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Material_0.005_normal.jpeg"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "emissiveFactor": [
+        0.35706220544169487,
+        0.35706220544169487,
+        0.35706220544169487
+      ],
+      "emissiveTexture": {
+        "index": 0
+      },
+      "name": "Material_0.005",
+      "normalTexture": {
+        "index": 2
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        },
+        "roughnessFactor": 0.2853728242867328
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Object_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3,
+            "TEXCOORD_1": 4,
+            "TEXCOORD_2": 5,
+            "TEXCOORD_3": 6
+          },
+          "indices": 7,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "name": "root"
+    },
+    {
+      "children": [
+        3
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "GLTF_SceneRootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "name": "Mesh0_0"
+    },
+    {
+      "mesh": 0,
+      "name": "Object_4"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    }
+  ]
+}

@@ -153,5 +153,5 @@ void main()
     caustics *= depthFade;
     caustics = clamp(caustics, 0.0, 0.5);
     
-    gl_FragColor = vec4(caustics, 1.0);
+    gl_FragColor = vec4(caustics, 0.75);
 }

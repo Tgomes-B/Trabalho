@@ -59,7 +59,7 @@ void main()
     mask = pow(mask, 2.0);
     mask = clamp(mask, 0.0, 1.0);
 
-    gl_FragColor = vec4(waterColor, 0.7);
+    gl_FragColor = vec4(waterColor, 0.55);
 
     if(diff < falloffDistance * leadingEdgeFalloff)
     {

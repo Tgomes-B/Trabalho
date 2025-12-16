@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { SCENE_CONFIG, getPositions, createNoiseUniforms, createCameraUniforms } from './config.js';
+import { loadTexture } from './loaders.js';
 
 export function createSphere() {
     const geometry = new THREE.SphereGeometry(1, 32, 32);
@@ -35,14 +36,27 @@ export function createBox() {
     const { box } = SCENE_CONFIG;
     const pos = getPositions();
     
-    const material = new THREE.MeshStandardMaterial({ 
-        color: 0xcccccc,
+    // Material padrão para paredes
+    const wallMaterial = new THREE.MeshStandardMaterial({ 
         roughness: 0.9,
-        metalness: 0.1
+        color: new THREE.Color(0, 0, 0)
+    });
+
+    // Material com textura de areia para o fundo
+    const sandTexture = loadTexture('./assest/GLTF/textures/GroundSand.jpg');
+    sandTexture.wrapS = THREE.RepeatWrapping;
+    sandTexture.wrapT = THREE.RepeatWrapping;
+    sandTexture.repeat.set(5, 5); 
+
+    const sandMaterial = new THREE.MeshStandardMaterial({ 
+    map: sandTexture,
+    color: new THREE.Color(0.5, 0.5, 0.5),
+    roughness: 0.95,
+    metalness: 0.0
     });
 
     // Função helper para criar parede
-    const createWall = (width, height, depth, position, receiveShadow = true, castShadow = true) => {
+    const createWall = (width, height, depth, position, material, receiveShadow = true, castShadow = true) => {
         const geometry = new THREE.BoxGeometry(width, height, depth);
         const mesh = new THREE.Mesh(geometry, material);
         mesh.position.copy(position);
@@ -51,13 +65,14 @@ export function createBox() {
         return mesh;
     };
 
+    // Fundo com textura de areia
+    group.add(createWall(box.size, box.thickness, box.size, new THREE.Vector3(0, pos.bottomY, 0), sandMaterial, true, false));
     
-    group.add(createWall(box.size, box.thickness, box.size, new THREE.Vector3(0, pos.bottomY, 0), true, false));
-    
-    group.add(createWall(box.size + box.thickness, box.height, box.thickness, new THREE.Vector3(0, pos.wallY, pos.halfBox)));
-    group.add(createWall(box.size + box.thickness, box.height, box.thickness, new THREE.Vector3(0, pos.wallY, -pos.halfBox)));
-    group.add(createWall(box.thickness, box.height, box.size + box.thickness, new THREE.Vector3(-pos.halfBox, pos.wallY, 0)));
-    group.add(createWall(box.thickness, box.height, box.size + box.thickness, new THREE.Vector3(pos.halfBox, pos.wallY, 0)));
+    // Paredes com material padrão
+    group.add(createWall(box.size + box.thickness, box.height, box.thickness, new THREE.Vector3(0, pos.wallY, pos.halfBox), wallMaterial));
+    group.add(createWall(box.size + box.thickness, box.height, box.thickness, new THREE.Vector3(0, pos.wallY, -pos.halfBox), wallMaterial));
+    group.add(createWall(box.thickness, box.height, box.size + box.thickness, new THREE.Vector3(-pos.halfBox, pos.wallY, 0), wallMaterial));
+    group.add(createWall(box.thickness, box.height, box.size + box.thickness, new THREE.Vector3(pos.halfBox, pos.wallY, 0), wallMaterial));
 
     return group;
 }
@@ -86,8 +101,8 @@ export function createWater(camera, renderer, vertexShader, fragmentShader, dudv
             material: {
                 value: {
                     diffuseColor: new THREE.Vector3(0.75, 0.75, 0.75),
-                    specularColor: new THREE.Vector3(1, 1, 1),
-                    shininess: 32
+                    specularColor: new THREE.Vector3(12, 12, 12),
+                    shininess: 64
                 }
             },
             ...createNoiseUniforms()
