@@ -2,35 +2,6 @@ import * as THREE from 'three';
 import { SCENE_CONFIG, getPositions, createNoiseUniforms, createCameraUniforms } from './config.js';
 import { loadTexture } from './loaders.js';
 
-export function createSphere() {
-    const geometry = new THREE.SphereGeometry(1, 32, 32);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xff6b6b,
-        metalness: 0.3,
-        roughness: 0.4
-    });
-    const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.y = SCENE_CONFIG.water.y;
-    sphere.castShadow = true;
-    sphere.receiveShadow = true;
-    return sphere;
-}
-
-export function createBottomSphere() {
-    const pos = getPositions();
-    const geometry = new THREE.SphereGeometry(1.5, 32, 32);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xcccccc,
-        metalness: 0.1,
-        roughness: 0.8
-    });
-    const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.set(3.0, pos.bottomY + 1.5, 0);
-    sphere.castShadow = true;
-    sphere.receiveShadow = true;
-    return sphere;
-}
-
 export function createBox() {
     const group = new THREE.Group();
     const { box } = SCENE_CONFIG;

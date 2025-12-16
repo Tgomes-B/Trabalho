@@ -14,7 +14,6 @@ uniform sampler2D tBottom;
 
 varying float vWaveHeight;
 varying vec2 vFoamUV;
-varying vec3 vNormal;
 
 uniform float edgePatternScale;
 

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createLights } from '/Trabalho/scripts/light.js';
-import { createSphere, createBottomSphere, createBox, createWater, createCaustics } from '/Trabalho/scripts/objects.js';
+import {createBox, createWater, createCaustics } from '/Trabalho/scripts/objects.js';
 import { loadSkybox, loadShaders, loadTexture, loadModel } from '/Trabalho/scripts/loaders.js';
 import { SCENE_CONFIG } from '/Trabalho/scripts/config.js';
 
@@ -61,6 +61,12 @@ async function init() {
         boat.rotation.y = (Math.PI) / 4;
         boat.scale.set(0.008, 0.008, 0.008);
         scene.add(boat);
+
+        const fish = await loadModel('Trabalho/assest/GLTF/fizz.gltf');
+        fish.position.set(-4.0, SCENE_CONFIG.water.y - 2.5, 3.0);
+        fish.scale.set(0.02, 0.02, 0.02);
+        fish.rotation.x = -Math.PI / 2;
+        scene.add(fish);
 
         const anchor = await loadModel('Trabalho/assest/GLTF/anchor.gltf');
         anchor.position.set(6.0, SCENE_CONFIG.water.y + 2.4, 5.5);
