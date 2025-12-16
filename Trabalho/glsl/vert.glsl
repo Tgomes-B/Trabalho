@@ -8,6 +8,7 @@
 #include <shadowmap_pars_vertex>
 
 varying vec3 fragPos;
+varying vec3 viewDir;
 varying vec2 vUV;
 uniform float time;
 uniform float u_pointsize;
