@@ -1,0 +1,63 @@
+SUGESTÕES DE MELHORIA PARA O SHADER E O CENÁRIO
+
+=========================
+MELHORIAS NO SHADER (ÁGUA)
+=========================
+
+1. Ondas mais realistas:
+   - Use múltiplas camadas de ondas (frequências e amplitudes diferentes) para dar mais complexidade.
+   - Experimente misturar ruído Perlin/Simplex com senos/cossenos para detalhes finos.
+
+2. Refração aprimorada:
+   - Aplique distorção baseada na normal da superfície, não só no DUDV map.
+   - Adicione um leve desfoque na refração para simular a dispersão da luz na água.
+
+3. Espuma mais natural:
+   - Faça a espuma variar de acordo com a intensidade das ondas e colisão com objetos.
+   - Use uma máscara de profundidade para controlar onde a espuma aparece.
+
+4. Cáusticas mais bonitas:
+   - Aumente o contraste e a nitidez das cáusticas.
+   - Faça as cáusticas se moverem suavemente conforme as ondas (animando a textura ou calculando no shader).
+
+5. Cores e transparência:
+   - Use um gradiente de cor na água (mais escuro no fundo, mais claro na superfície).
+   - Ajuste a opacidade conforme a profundidade.
+
+6. Reflexão:
+   - Adicione um componente de reflexão do céu/ambiente na superfície da água (mesmo que simples).
+
+=========================
+MELHORIAS NO CENÁRIO
+=========================
+
+1. Skybox:
+   - Use uma skybox HDR ou imagens de céu realistas (pôr do sol, nuvens, etc).
+
+2. Iluminação:
+   - Adicione luz ambiente suave e um directional light para simular o sol.
+   - Experimente usar sombras suaves.
+
+3. Elementos decorativos:
+   - Adicione mais peixes, rochas, plantas aquáticas e detalhes no fundo.
+   - Coloque pequenas ondas ou respingos próximos à ilha ou ao barco.
+
+4. Animações:
+   - Faça o barco balançar suavemente com as ondas.
+   - Faça os peixes nadarem (movimento simples de translação ou rotação).
+
+5. Pós-processamento:
+   - Adicione efeito de bloom ou vignette para dar um toque mais artístico.
+   - Use um leve fog (neblina) para dar profundidade à cena.
+
+6. Interface:
+   - Adicione um botão para alternar entre dia/noite ou mudar o clima.
+   - Mostre informações na tela (ex: nome dos objetos ao passar o mouse).
+
+=========================
+DICAS GERAIS
+=========================
+
+- Use cores harmônicas e texturas de boa qualidade.
+- Teste diferentes ângulos de câmera para valorizar o cenário.
+- Comente o código explicando cada efeito visual implementado.

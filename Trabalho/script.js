@@ -7,18 +7,19 @@ import { SCENE_CONFIG } from '/Trabalho/scripts/config.js';
 
 let boat = null;
 const foamTexture = loadTexture('Trabalho/assest/espuma.png');
-const bottomTexture = loadTexture('Trabalho/assest/GLTF/textures/GroundSand.jpg');
 
 async function init() {
     // Setup
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 10, 25);
     camera.layers.enable(1);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const underwaterRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
@@ -62,11 +63,27 @@ async function init() {
         boat.scale.set(0.008, 0.008, 0.008);
         scene.add(boat);
 
-        const fish = await loadModel('Trabalho/assest/GLTF/fizz.gltf');
-        fish.position.set(-4.0, SCENE_CONFIG.water.y - 2.5, 3.0);
-        fish.scale.set(0.02, 0.02, 0.02);
-        fish.rotation.x = -Math.PI / 2;
-        scene.add(fish);
+        const fish = await loadModel('Trabalho/assest/GLTF/fish.gltf');
+        const fishPositions = [
+            { x: -15, y: SCENE_CONFIG.water.y - 2.5, z: -10 },
+            { x:  -8, y: SCENE_CONFIG.water.y - 1, z:  9.0 },
+            { x: 0, y: SCENE_CONFIG.water.y, z: 5.5 },
+            { x: 5, y: SCENE_CONFIG.water.y - 3, z: -10 },
+            { x: -15, y: SCENE_CONFIG.water.y - 1.5, z: 10.0 },
+            { x: -5.0, y: SCENE_CONFIG.water.y - 1.5, z: -5.0 }
+        ];
+
+        for (let i = 0; i < fishPositions.length; i++) {
+            const pos = fishPositions[i];
+            const fishClone = fish.clone(true);
+            fishClone.position.set(pos.x, pos.y, pos.z);
+        
+            const scale = 0.005;
+            fishClone.scale.set(scale, scale, scale);
+        
+            scene.add(fishClone);
+        }
+
 
         const anchor = await loadModel('Trabalho/assest/GLTF/anchor.gltf');
         anchor.position.set(6.0, SCENE_CONFIG.water.y + 2.4, 5.5);
@@ -79,7 +96,6 @@ async function init() {
         const rocksPos = [];
 
         for (let i = 0; i < numRocks; i++) {
-        // Gera posições aleatórias dentro da área da box
         const x = (Math.random() - 0.5) * SCENE_CONFIG.box.size * 0.8;
         const z = (Math.random() - 0.5) * SCENE_CONFIG.box.size * 0.8;
         const y = -2.2; 
@@ -101,7 +117,6 @@ async function init() {
 
         island.position.set(-8.7, 1.5, -4.3);
         island.scale.set(3.5, 3.5, 3.5);
-        // island.rotation.y = Math.PI / 2;  // Rotação se necessário
         
         scene.add(island);
         console.log('Modelo carregado com sucesso!');
@@ -110,16 +125,7 @@ async function init() {
     }
 
     // Água e cáusticas
-    const water = createWater(
-        camera, renderer,
-        waterShaders.vert, waterShaders.frag,
-        dudvMap, depthRT.depthTexture,
-        foamTexture,
-        bottomTexture
-    );
     
-    scene.add(water);
-
     const caustics = createCaustics(
         camera, renderer,
         causticShaders.vert, causticShaders.frag,
@@ -127,6 +133,15 @@ async function init() {
         directionalLight.position
     );
     scene.add(caustics);
+
+    const water = createWater(
+        camera, renderer,
+        waterShaders.vert, waterShaders.frag,
+        dudvMap, depthRT.depthTexture,
+        foamTexture,
+        underwaterRT.texture
+    );
+    scene.add(water);
 
     // Skybox
     loadSkybox(scene, 'Trabalho/assest/skyBox.png');
@@ -142,10 +157,13 @@ async function init() {
         depthRT.setSize(w * pr, h * pr);
         
         const res = new THREE.Vector2(w * pr, h * pr);
+        underwaterRT.setSize(w * pr, h * pr);
+        water.material.uniforms.tUnderwater.value = underwaterRT.texture;
         water.material.uniforms.resolution.value.copy(res);
         caustics.material.uniforms.resolution.value.copy(res);
     };
     window.addEventListener('resize', onResize);
+    onResize();
 
     // Animação
     const viewProjection = new THREE.Matrix4();
@@ -172,6 +190,14 @@ async function init() {
         // Atualizar matriz inversa para cáusticas
         viewProjection.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
         caustics.material.uniforms.inverseViewProjection.value.copy(viewProjection).invert();
+
+        water.visible = false;
+        caustics.visible = false;
+        renderer.setRenderTarget(underwaterRT);
+        renderer.render(scene, camera);
+        renderer.setRenderTarget(null);
+        water.visible = true;
+        caustics.visible = true;
 
         // Render depth (sem água e cáusticas)
         water.visible = false;

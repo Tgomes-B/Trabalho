@@ -32,7 +32,7 @@ export const SCENE_CONFIG = {
         speed: 0.5,
         strength: 1.45,
         split: 0.01,
-        color: "rgb(113, 175, 216)"
+        color: "rgb(100, 157, 196)"
     }
 };
 
