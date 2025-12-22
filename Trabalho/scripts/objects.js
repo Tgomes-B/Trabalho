@@ -60,7 +60,6 @@ export function createWater(camera, renderer, vertexShader, fragmentShader, dudv
             tDudv: { value: dudvMap },
             waterColor: { value: new THREE.Color(water.color) },
             foamColor: { value: new THREE.Color(water.foamColor) },
-            //isOrthographic: { value: false },
             tFoam: { value: foamTexture },
             biasMultiplier: { value: 0.5 },
             edgePatternScale: { value: 1.5 },

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Stats from 'three/addons/libs/stats.module.js'; 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createLights } from '/Trabalho/scripts/light.js';
 import {createBox, createWater, createCaustics } from '/Trabalho/scripts/objects.js';
@@ -13,6 +14,9 @@ async function init() {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
     scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+
+    const stats = new Stats();
+    document.body.appendChild(stats.dom);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 10, 25);
@@ -216,7 +220,7 @@ async function init() {
         // Atualizar tempo
         water.material.uniforms.time.value += deltaTime;
         caustics.material.uniforms.time.value += deltaTime;
-        
+        stats.update();
     }
 
     renderer.setAnimationLoop(animate);
