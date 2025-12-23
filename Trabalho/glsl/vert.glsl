@@ -23,12 +23,14 @@ varying float vWaveHeight;
 varying vec2 vWaveUV;
 varying vec2 vFoamUV;
 
+//função pseudorandomica que me retorna o fractal de um valor baseado em uma coordenada 2D
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
                         vec2(12.9898,78.233)))
                 * 43758.5453123);
 }
 
+//função noise que faz a interpolação de valores randomicos
 float noise (in vec2 st) {
     vec2 i = floor(st);
     vec2 f = fract(st);
@@ -45,6 +47,7 @@ float noise (in vec2 st) {
             (d - b) * u.x * u.y;
 }
 
+//matriz de rotação
 mat2 rotate2d(float angle){
     return mat2(cos(angle),-sin(angle),
               sin(angle),cos(angle));
@@ -71,18 +74,18 @@ void main()
 	#include <shadowmap_vertex>
 	#include <fog_vertex>
 
-    
+    // Calculo da posição com ruido
+	//cria o movimento baseados nessas funções
 	vec3 pos = position;
-
 	pos.z += noise(pos.xy * u_noise_freq_1 + time * u_spd_modifier_1)*u_noise_amp_1;
 	pos.z += noise(rotate2d(PI/6.0)*pos.yx * u_noise_freq_2 - time * u_spd_modifier_2 *0.6) *u_noise_amp_2;
 
+	//Altura da onda
 	float wave = noise(pos.xy * u_noise_freq_1 + time * u_spd_modifier_1) * u_noise_amp_1;
     wave += noise(rotate2d(PI/6.0)*pos.yx * u_noise_freq_2 - time * u_spd_modifier_2 *0.6) * u_noise_amp_2;
-
     vWaveHeight = wave;
-	vWaveUV = pos.xy;
 
+	vWaveUV = pos.xy;
 	vUV = uv;
 	vFoamUV = uv + normal.xz * vWaveHeight * 0.5;
 

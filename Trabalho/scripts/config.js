@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 
-// Configurações da cena - TUDO CENTRALIZADO AQUI
+/*
+    Esse aarquivo contém alguns valores basicos da cena e também contém valores 
+    que seriam compartilhados tanto com o shader da agua quanto com o shader
+    caustico então resolvi unir ambos aqui
+*/
 export const SCENE_CONFIG = {
     // Dimensões da box
     box: {
@@ -47,7 +51,7 @@ export function getPositions() {
     };
 }
 
-// Cria uniforms de noise (compartilhados)
+// Cria uniforms de noise compartilhados
 export function createNoiseUniforms() {
     const { noise } = SCENE_CONFIG;
     return {
@@ -60,7 +64,7 @@ export function createNoiseUniforms() {
     };
 }
 
-// Cria uniforms de câmera (compartilhados)
+// Cria uniforms de câmera compartilhados
 export function createCameraUniforms(camera, renderer) {
     const pixelRatio = renderer.getPixelRatio();
     return {

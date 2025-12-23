@@ -1,8 +1,13 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
 export const textureLoader = new THREE.TextureLoader();
 export const gltfLoader = new GLTFLoader();
+/*
+    Esse arquivo todo contém apenas o carregamento de
+    diferentes assests, como skybox, shaders, texturas e um metodo 
+    generico para carregar gltf.
+*/
+
 
 export function loadSkybox(scene, path) {
     const skyboxTexture = textureLoader.load(path);

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { SCENE_CONFIG, getPositions, createNoiseUniforms, createCameraUniforms } from './config.js';
 import { loadTexture } from './loaders.js';
 
+//Cria a caixa ao redor da agua
 export function createBox() {
     const group = new THREE.Group();
     const { box } = SCENE_CONFIG;
@@ -48,7 +49,7 @@ export function createBox() {
     return group;
 }
 
-// Criar plano de água com shader
+// Criar plano de água com ondas
 export function createWater(camera, renderer, vertexShader, fragmentShader, dudvMap, depthTexture, foamTexture, underwaterRT) {
     const { box, water } = SCENE_CONFIG;
     const geometry = new THREE.PlaneGeometry(box.size, box.size, 32, 32);
@@ -96,11 +97,10 @@ export function createWater(camera, renderer, vertexShader, fragmentShader, dudv
     return mesh;
 }
 
-// Criar plano de cáusticas (fullscreen quad)
+// Criar plano de cáusticas 
 export function createCaustics(camera, renderer, vertexShader, fragmentShader, causticsTexture, depthTexture, lightDir) {
     const { box, water, caustics } = SCENE_CONFIG;
     
-    // Usar PlaneGeometry 2x2 em clip space (fullscreen quad)
     const geometry = new THREE.PlaneGeometry(2, 2);
     
     const material = new THREE.ShaderMaterial({

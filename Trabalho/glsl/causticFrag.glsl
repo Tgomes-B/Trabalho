@@ -59,9 +59,10 @@ mat2 rotate2d(float angle){
               sin(angle),cos(angle));
 }
 
+//getter que me da a altura onda
 float getWaveHeight(vec2 pos) {
-    
-    vec2 localPos = vec2(pos.x, -pos.y); // Converter world.xz para local.xy da água
+    // Converter world.xz para local.xy da água
+    vec2 localPos = vec2(pos.x, -pos.y); 
     
     float height = 0.0;
     height += noise(localPos * u_noise_freq_1 + time * u_spd_modifier_1) * u_noise_amp_1;
@@ -69,11 +70,13 @@ float getWaveHeight(vec2 pos) {
     return height;
 }
 
+//Cria o efeito de movimento da caustica
 vec2 panner(vec2 uv, float speed, float tiling)
 {
     return (vec2(1.0, 0.0) * time * speed) + (uv * tiling);
 }
 
+//Caustica com efeito de refração da luz aplicado no RGB
 vec3 sampleCaustics(vec2 uv, float split)
 {
     vec2 uv1 = uv + vec2(split, split);
@@ -92,6 +95,7 @@ float getDepth(vec2 screenUV)
     return texture2D(tDepth, screenUV).x;
 }
 
+// Getter pra me retorna as coordenadas no mundo convertendo depth e screenUV
 vec3 getWorldPosition(vec2 screenUV, float depth)
 {
     vec4 clipPos = vec4(screenUV * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
@@ -106,6 +110,7 @@ void main()
     vec2 screenUV = gl_FragCoord.xy / resolution;
     float depth = getDepth(screenUV);
     
+    //descarte fora de profundidade
     if(depth >= 0.9999 || depth <= 0.0001)
     {
         return;
@@ -113,6 +118,7 @@ void main()
     
     vec3 worldPos = getWorldPosition(screenUV, depth);
     
+    // Descarta valores que estejam fora da Box
     float halfBox = boxSize / 2.0;
     if(abs(worldPos.x) > halfBox || abs(worldPos.z) > halfBox)
     {
@@ -123,7 +129,7 @@ void main()
     float waveHeight = getWaveHeight(worldPos.xz);
     float dynamicWaterLevel = waterLevel + waveHeight;
     
-    // Só renderiza abaixo da água (considerando a onda)
+    // Só renderiza abaixo da água (
     if(worldPos.y > dynamicWaterLevel)
     {
         return;
@@ -137,9 +143,11 @@ void main()
     vec2 uv1 = panner(causticsUV, 0.75 * causticsSpeed, 1.0 / causticsScale);
     vec2 uv2 = panner(causticsUV, 1.0 * causticsSpeed, -1.0 / causticsScale);
 
+    //textura das causticas com efeito de refração
     vec3 tex1 = sampleCaustics(uv1, causticsSplit);
     vec3 tex2 = sampleCaustics(uv2, causticsSplit);
     
+    //combia as duas texturas e faz ajustes de cor e intensidade
     vec3 caustics = min(tex1, tex2);
     caustics = pow(caustics, vec3(1.5));
     caustics *= causticsStrength;

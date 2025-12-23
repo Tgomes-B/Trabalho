@@ -10,18 +10,21 @@ let boat = null;
 const foamTexture = loadTexture('Trabalho/assest/espuma.png');
 
 async function init() {
-    // Setup
+    // Config inicial
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
     scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 
+    //FPS
     const stats = new Stats();
     document.body.appendChild(stats.dom);
 
+    //camera
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 10, 25);
     camera.layers.enable(1);
 
+    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     const underwaterRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -30,7 +33,7 @@ async function init() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
 
-    // Depth Render Target
+    //Criando Render Target
     const createDepthRT = () => {
         const pr = renderer.getPixelRatio();
         const rt = new THREE.WebGLRenderTarget(window.innerWidth * pr, window.innerHeight * pr);
@@ -60,6 +63,7 @@ async function init() {
     // Objetos
     scene.add(createBox());
     
+    // Carregando GLTF
     try {
         boat = await loadModel('Trabalho/assest/GLTF/boat.gltf');
         boat.position.set(5.0, SCENE_CONFIG.water.y + 0.15, -4.5);
@@ -128,7 +132,7 @@ async function init() {
         console.error('Falha ao carregar modelo:', error);
     }
 
-    // Água e cáusticas
+    // Adiciona Água e cáusticas
     
     const caustics = createCaustics(
         camera, renderer,
@@ -150,6 +154,10 @@ async function init() {
     // Skybox
     loadSkybox(scene, 'Trabalho/assest/skyBox.png');
 
+    /*
+    Obtem as dimensões da janela e atraves delas atualiza camera,
+    render, rednderTargets e renderMaterials
+     */
     const onResize = () => {
         const w = window.innerWidth;
         const h = window.innerHeight;
@@ -174,13 +182,15 @@ async function init() {
     const deltaTime = 0.01;
     
     function animate() {
+
+        //Controlado pro barco se movimentar de acordo com as ondas, ou quase igual
         if(boat) {
         const t = water.material.uniforms.time.value;
         const amp = SCENE_CONFIG.noise.amp1;
         const freq = SCENE_CONFIG.noise.freq1;
         const speed = SCENE_CONFIG.noise.speed1;
 
-         const waveY = SCENE_CONFIG.water.y +
+        const waveY = SCENE_CONFIG.water.y +
             Math.sin(t * speed + boat.position.x * freq) * amp * 0.25 +
             Math.cos(t * speed * 0.7 + boat.position.z * freq * 0.7) * amp * 0.15;
 
@@ -189,6 +199,7 @@ async function init() {
         boat.rotation.x = Math.sin(t * speed + boat.position.x) * 0.07;
         boat.rotation.z = Math.cos(t * speed * 0.7 + boat.position.z) * 0.07;
         }
+
         controls.update();
         
         // Atualizar matriz inversa para cáusticas
@@ -203,7 +214,7 @@ async function init() {
         water.visible = true;
         caustics.visible = true;
 
-        // Render depth (sem água e cáusticas)
+        // Render depth 
         water.visible = false;
         caustics.visible = false;
         camera.layers.disable(1);
