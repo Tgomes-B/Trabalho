@@ -149,7 +149,10 @@ void main()
     
     //combia as duas texturas e faz ajustes de cor e intensidade
     vec3 caustics = min(tex1, tex2);
+    caustics    vec3 caustics = min(tex1, tex2);
     caustics = pow(caustics, vec3(1.5));
+    caustics *= causticsStrength;
+    caustics *= causticsColor; = pow(caustics, vec3(1.5));
     caustics *= causticsStrength;
     caustics *= causticsColor;
     
