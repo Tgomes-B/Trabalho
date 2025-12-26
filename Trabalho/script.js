@@ -52,7 +52,7 @@ async function init() {
     const waterShaders = await loadShaders('Trabalho/glsl/vert.glsl', 'Trabalho/glsl/frag.glsl');
     const causticShaders = await loadShaders('Trabalho/glsl/causticVert.glsl', 'Trabalho/glsl/causticFrag.glsl');
     const dudvMap = loadTexture('Trabalho/assest/noise.jpg');
-    const causticsTexture = loadTexture('Trabalho/assest/caustic.jpg');
+    const causticsTexture = loadTexture('Trabalho/assest/image.png');
 
     // Luzes
     const { directionalLight } = createLights(scene);
