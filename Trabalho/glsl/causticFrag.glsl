@@ -22,15 +22,12 @@ uniform vec3 causticsColor;
 uniform float boxSize;
 uniform float waterLevel;
 
-uniform float u_pointsize;
 uniform float u_noise_amp_1;
 uniform float u_noise_freq_1;
 uniform float u_spd_modifier_1;
 uniform float u_noise_amp_2;
 uniform float u_noise_freq_2;
 uniform float u_spd_modifier_2;
-
-varying vec2 vUV;
 
 // Gera um valor pseudoaleatório
 float random (in vec2 st) {

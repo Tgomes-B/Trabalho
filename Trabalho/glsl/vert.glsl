@@ -7,9 +7,6 @@
 #include <skinning_pars_vertex>
 #include <shadowmap_pars_vertex>
 
-varying vec3 fragPos;
-varying vec3 viewDir;
-varying vec2 vUV;
 uniform float time;
 uniform float u_pointsize;
 uniform float u_noise_amp_1;
@@ -20,7 +17,6 @@ uniform float u_noise_freq_2;
 uniform float u_spd_modifier_2;
 
 varying float vWaveHeight;
-varying vec2 vWaveUV;
 varying vec2 vFoamUV;
 
 // Gera um valor pseudoaleatório 
@@ -87,17 +83,11 @@ void main()
     wave += noise(rotate2d(PI/6.0)*pos.yx * u_noise_freq_2 - time * u_spd_modifier_2 *0.6) * u_noise_amp_2;
 
     vWaveHeight = wave;
-	vWaveUV = pos.xy;
 
-	vUV = uv;
 	vFoamUV = uv + normal.xz * vWaveHeight * 0.5;
 
 	vec4 worldPos = modelMatrix * vec4(pos,1.0);
 	mvPosition = viewMatrix *  worldPos;
 
-	fragPos = worldPos.xyz;
-	viewDir = normalize(cameraPosition - worldPos.xyz);
-
-	gl_PointSize = u_pointsize;
     gl_Position = projectionMatrix * mvPosition;
 }
