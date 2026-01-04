@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+/*Configurações de Luz, com ambiente, direcional e hemisférica*/
 export function createLights(scene) {
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -12,7 +13,6 @@ export function createLights(scene) {
     directionalLight.position.set(10, 20, 10);
     directionalLight.castShadow = true;
     
-    // Shadow config 
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
     directionalLight.shadow.camera.near = 0.5;

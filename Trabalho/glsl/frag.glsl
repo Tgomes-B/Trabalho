@@ -19,14 +19,21 @@ varying vec3 vNormal;
 
 uniform float edgePatternScale;
 
+// Retorna a profundidade do buffer de profundidade na posição da tela
 float getDepth(vec2 screenPosition) {
     return texture2D(tDepth, screenPosition).x;
 }
 
+// Converte profundidade de perspectiva para profundidade em coordenadas de visão
 float getViewZ(float depth) {
     return perspectiveDepthToViewZ(depth, cameraNear, cameraFar);
 }
 
+/* 
+Calcula cor da água, refração, 
+espuma e mistura tudo para gerar
+a cor final do pixel
+*/
 void main() {
     vec2 screenUV = gl_FragCoord.xy / resolution;
 
@@ -52,22 +59,3 @@ void main() {
     gl_FragColor = vec4(mix(baseColor, foamColor, foam),0.8 + foam * 0.2);
 
 }
-    /*
-
-    vec2 dudv = texture2D(tDudv, screenUV + time * 0.05).rg * 2.0 - 1.0;
-    vec2 refractUV = screenUV + dudv * 0.04;
-    refractUV = clamp(refractUV, 0.0, 1.0);
-    vec3 refractedColor = texture2D(tUnderwater, refractUV).rgb;
-
-    // Animação e contraste da espuma
-    vec2 foamAnimUV = vFoamUV * edgePatternScale + vec2(time * 0.05, time * 0.03);
-    float foamMask = texture2D(tFoam, foamAnimUV).r;
-    foamMask = pow(foamMask, 0.5);
-
-    float foam = foamEdge * foamMask;
-
-    // Mistura a espuma na cor da água
-    vec3 baseColor = mix(waterColor, refractedColor, 0.4);
-    gl_FragColor = vec4(mix(baseColor, foamColor, foam), 0.8 + foam * 0.2);
-
-    #include <fog_fragment>*/

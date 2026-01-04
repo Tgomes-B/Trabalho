@@ -32,12 +32,14 @@ uniform float u_spd_modifier_2;
 
 varying vec2 vUV;
 
+// Gera um valor pseudoaleatório
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
                         vec2(12.9898,78.233)))
                 * 43758.5453123);
 }
 
+// Gera ruído suave baseado em um vetor 2D
 float noise (in vec2 st) {
     vec2 i = floor(st);
     vec2 f = fract(st);
@@ -54,14 +56,16 @@ float noise (in vec2 st) {
             (d - b) * u.x * u.y;
 }
 
+// Retorna uma matriz de rotação 2D para um ângulo dado
 mat2 rotate2d(float angle){
     return mat2(cos(angle),-sin(angle),
               sin(angle),cos(angle));
 }
 
+// Calcula a altura da onda em uma posição 2D, usando ruído procedural
 float getWaveHeight(vec2 pos) {
     
-    vec2 localPos = vec2(pos.x, -pos.y); // Converter world.xz para local.xy da água
+    vec2 localPos = vec2(pos.x, -pos.y);
     
     float height = 0.0;
     height += noise(localPos * u_noise_freq_1 + time * u_spd_modifier_1) * u_noise_amp_1;
@@ -69,11 +73,13 @@ float getWaveHeight(vec2 pos) {
     return height;
 }
 
+// Move as coordenadas UV ao longo do tempo para animar texturas
 vec2 panner(vec2 uv, float speed, float tiling)
 {
     return (vec2(1.0, 0.0) * time * speed) + (uv * tiling);
 }
 
+//Faz a amostragem da textura pra gerar um valor RGB
 vec3 sampleCaustics(vec2 uv, float split)
 {
     vec2 uv1 = uv + vec2(split, split);
@@ -87,11 +93,13 @@ vec3 sampleCaustics(vec2 uv, float split)
     return vec3(r, g, b);
 }
 
+// Retorna a profundidade do buffer de profundidade na posição da tela
 float getDepth(vec2 screenUV)
 {
     return texture2D(tDepth, screenUV).x;
 }
 
+// Converte coordenadas de tela e profundidade em posição no mundo
 vec3 getWorldPosition(vec2 screenUV, float depth)
 {
     vec4 clipPos = vec4(screenUV * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
@@ -99,6 +107,11 @@ vec3 getWorldPosition(vec2 screenUV, float depth)
     return worldPos.xyz / worldPos.w;
 }
 
+/* 
+Calcula a cor das cáusticas na água,
+considerando profundidade, cor,
+força e distorção das ondas
+*/
 void main()
 {
     gl_FragColor = vec4(0.0);
@@ -123,7 +136,7 @@ void main()
     float waveHeight = getWaveHeight(worldPos.xz);
     float dynamicWaterLevel = waterLevel + waveHeight;
     
-    // Só renderiza abaixo da água (considerando a onda)
+    // Só renderiza abaixo da água 
     if(worldPos.y > dynamicWaterLevel)
     {
         return;

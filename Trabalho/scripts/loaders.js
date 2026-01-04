@@ -4,6 +4,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 export const textureLoader = new THREE.TextureLoader();
 export const gltfLoader = new GLTFLoader();
 
+/* Funções de carregamento */
+
 export function loadSkybox(scene, path) {
     const skyboxTexture = textureLoader.load(path);
     skyboxTexture.mapping = THREE.EquirectangularReflectionMapping;

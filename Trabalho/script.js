@@ -10,11 +10,11 @@ let boat = null;
 const foamTexture = loadTexture('Trabalho/assest/espuma.png');
 
 async function init() {
-    // Setup
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
     scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 
+    //FPS
     const stats = new Stats();
     document.body.appendChild(stats.dom);
 
@@ -22,15 +22,16 @@ async function init() {
     camera.position.set(0, 10, 25);
     camera.layers.enable(1);
 
+    //renderer e targets
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    const underwaterRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+    const underwaterRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight); //Target pra renderizar debaixo d'água
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
 
-    // Depth Render Target
+    // Cria o target de profundidade
     const createDepthRT = () => {
         const pr = renderer.getPixelRatio();
         const rt = new THREE.WebGLRenderTarget(window.innerWidth * pr, window.innerHeight * pr);
@@ -43,7 +44,6 @@ async function init() {
     };
     const depthRT = createDepthRT();
 
-    // Controles
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
@@ -57,7 +57,7 @@ async function init() {
     // Luzes
     const { directionalLight } = createLights(scene);
 
-    // Objetos
+    // Objetos e assets
     scene.add(createBox());
     
     try {
@@ -172,7 +172,11 @@ async function init() {
     // Animação
     const viewProjection = new THREE.Matrix4();
     const deltaTime = 0.01;
-    
+    /*
+    Atualiza a animação da cena
+    E aplica as transformações necessárias
+    de tempo e movimento dos objetos
+    */
     function animate() {
         if(boat) {
         const t = water.material.uniforms.time.value;
@@ -180,7 +184,8 @@ async function init() {
         const freq = SCENE_CONFIG.noise.freq1;
         const speed = SCENE_CONFIG.noise.speed1;
 
-         const waveY = SCENE_CONFIG.water.y +
+        //barco movimento
+        const waveY = SCENE_CONFIG.water.y +
             Math.sin(t * speed + boat.position.x * freq) * amp * 0.25 +
             Math.cos(t * speed * 0.7 + boat.position.z * freq * 0.7) * amp * 0.15;
 
@@ -191,7 +196,7 @@ async function init() {
         }
         controls.update();
         
-        // Atualizar matriz inversa para cáusticas
+        //Atualiza matriz caustica
         viewProjection.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
         caustics.material.uniforms.inverseViewProjection.value.copy(viewProjection).invert();
 
@@ -203,9 +208,7 @@ async function init() {
         water.visible = true;
         caustics.visible = true;
 
-        // Render depth (sem água e cáusticas)
-        water.visible = false;
-        caustics.visible = false;
+        //Render depth (sem água e cáusticas)
         camera.layers.disable(1);
         renderer.setRenderTarget(depthRT);
         renderer.render(scene, camera);
@@ -213,8 +216,6 @@ async function init() {
         
         // Render final
         camera.layers.enable(1);
-        water.visible = true;
-        caustics.visible = true;
         renderer.render(scene, camera);
         
         // Atualizar tempo

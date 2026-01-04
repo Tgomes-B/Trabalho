@@ -99,8 +99,6 @@ export function createWater(camera, renderer, vertexShader, fragmentShader, dudv
 // Criar plano de cáusticas (fullscreen quad)
 export function createCaustics(camera, renderer, vertexShader, fragmentShader, causticsTexture, depthTexture, lightDir) {
     const { box, water, caustics } = SCENE_CONFIG;
-    
-    // Usar PlaneGeometry 2x2 em clip space (fullscreen quad)
     const geometry = new THREE.PlaneGeometry(2, 2);
     
     const material = new THREE.ShaderMaterial({

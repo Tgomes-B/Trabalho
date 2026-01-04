@@ -23,12 +23,14 @@ varying float vWaveHeight;
 varying vec2 vWaveUV;
 varying vec2 vFoamUV;
 
+// Gera um valor pseudoaleatório 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
                         vec2(12.9898,78.233)))
                 * 43758.5453123);
 }
 
+// Gera ruído suave baseado em um vetor 2D
 float noise (in vec2 st) {
     vec2 i = floor(st);
     vec2 f = fract(st);
@@ -45,12 +47,16 @@ float noise (in vec2 st) {
             (d - b) * u.x * u.y;
 }
 
+// Retorna uma matriz de rotação 2D para um ângulo dado
 mat2 rotate2d(float angle){
     return mat2(cos(angle),-sin(angle),
               sin(angle),cos(angle));
 }
 
-
+/*
+Função principal calcula a posição final do vértice, 
+aplica ondas usando ruído procedural
+*/
 void main()
 {
 	#include <uv_vertex>

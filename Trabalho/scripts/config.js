@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-// Configurações da cena - TUDO CENTRALIZADO AQUI
+// Configurações da cena 
 export const SCENE_CONFIG = {
     // Dimensões da box
     box: {
@@ -32,7 +32,7 @@ export const SCENE_CONFIG = {
         speed: 0.5,
         strength: 1.45,
         split: 0.01,
-        color: "rgb(100, 157, 196)"
+        color: "rgb(215, 246, 255)"
     }
 };
 
@@ -47,7 +47,7 @@ export function getPositions() {
     };
 }
 
-// Cria uniforms de noise (compartilhados)
+// uniforms de noise
 export function createNoiseUniforms() {
     const { noise } = SCENE_CONFIG;
     return {
@@ -60,7 +60,7 @@ export function createNoiseUniforms() {
     };
 }
 
-// Cria uniforms de câmera (compartilhados)
+// uniforms de câmera 
 export function createCameraUniforms(camera, renderer) {
     const pixelRatio = renderer.getPixelRatio();
     return {
